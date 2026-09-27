@@ -34,7 +34,8 @@ mat-form-field {
   margin-left: 0.5rem;
 }
 .selected {
-  background: #e3efff;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
 }
 .confirmed {
   color: #1b6535;

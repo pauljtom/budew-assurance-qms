@@ -17,9 +17,9 @@
   gap: 1rem;
   min-height: 64px;
   padding: 0 1.5rem;
-  color: white;
-  background: #4054b2;
-  box-shadow: 0 2px 5px #18245426;
+  color: var(--mat-sys-on-primary);
+  background: var(--mat-sys-primary);
+  box-shadow: 0 2px 5px #183c2426;
 }
 
 .topbar h1 {
@@ -29,13 +29,13 @@
 }
 
 .home-link {
-  --mat-icon-button-icon-color: white;
+  --mat-icon-button-icon-color: var(--mat-sys-on-primary);
 }
 
 .app-description {
   margin-left: auto;
   font-size: 0.8rem;
-  color: #e2e7ff;
+  color: var(--mat-sys-on-primary);
 }
 
 .workspace {
@@ -62,9 +62,9 @@
 }
 
 .sidebar a.active {
-  background: #eef1ff;
-  border-left-color: #4054b2;
-  --mat-button-text-label-text-color: #4054b2;
+  background: var(--mat-sys-primary-container);
+  border-left-color: var(--mat-sys-primary);
+  --mat-button-text-label-text-color: var(--mat-sys-on-primary-container);
 }
 
 .main-view {
@@ -112,7 +112,7 @@
   }
 
   .sidebar a.active {
-    border-bottom-color: #4054b2;
+    border-bottom-color: var(--mat-sys-primary);
   }
 
   .main-view {

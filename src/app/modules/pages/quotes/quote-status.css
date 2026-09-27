@@ -19,8 +19,8 @@
 }
 
 .quote-status[data-status='Approved'] {
-  background: #e3efff;
-  color: #174ea6;
+  background: #edf7dd;
+  color: #426500;
 }
 
 .quote-status[data-status='Rejected'] {
