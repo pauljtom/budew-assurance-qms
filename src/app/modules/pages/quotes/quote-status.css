@@ -1,0 +1,39 @@
+.quote-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.quote-status[data-status='Draft'] {
+  background: #edf0f3;
+  color: #475569;
+}
+
+.quote-status[data-status='Pending'] {
+  background: #fff3cd;
+  color: #805500;
+}
+
+.quote-status[data-status='Approved'] {
+  background: #e3efff;
+  color: #174ea6;
+}
+
+.quote-status[data-status='Rejected'] {
+  background: #fde7e9;
+  color: #a61b29;
+}
+
+.quote-status[data-status='Expired'] {
+  background: #f0e9e3;
+  color: #72533c;
+}
+
+.quote-status[data-status='Accepted'] {
+  background: #e1f3e7;
+  color: #1b6535;
+}

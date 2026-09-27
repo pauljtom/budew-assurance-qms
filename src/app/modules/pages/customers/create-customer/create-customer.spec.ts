@@ -1,3 +1,8 @@
+import { vi } from 'vitest';
+import { throwError } from 'rxjs';
+import { CustomersService } from '../../../../shared/services/customers.service';
+import { provideEffects } from '@ngrx/effects';
+import { CustomersEffects } from '../../../../shared/store/customers.effects';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
@@ -10,7 +15,11 @@ import { CustomerList } from '../customer-list/customer-list';
 describe('CreateCustomer', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideRouter(routes), provideStore({ customers: customersFeature.reducer })],
+      providers: [
+        provideRouter(routes),
+        provideStore({ customers: customersFeature.reducer }),
+        provideEffects(CustomersEffects),
+      ],
     });
   });
 
@@ -41,6 +50,7 @@ describe('CreateCustomer', () => {
     const customers = TestBed.inject(Store).selectSignal(customersFeature.selectCustomers)();
     expect(customers).toHaveLength(6);
     expect(customers[5]).toEqual({
+      customerID: expect.any(String),
       firstName: 'Amy',
       lastName: 'Williams',
       addresses: [
@@ -81,6 +91,36 @@ describe('CreateCustomer', () => {
     await harness.fixture.whenStable();
     harness.detectChanges();
     expect(TestBed.inject(Store).selectSignal(customersFeature.selectCustomers)()).toHaveLength(5);
+    expect(harness.routeNativeElement!.querySelector('h1')!.textContent).toBe(
+      'Customer Management',
+    );
+  });
+  it('keeps the form open on a service failure and allows a successful retry', async () => {
+    const harness = await RouterTestingHarness.create();
+    const component = await harness.navigateByUrl('/customers/new', CreateCustomer);
+    component.form.setValue({
+      firstName: 'Amy',
+      lastName: 'Williams',
+      street: '12 Main Road',
+      suburb: 'Claremont',
+      city: 'Cape Town',
+      postalCode: '7708',
+    });
+    vi.spyOn(TestBed.inject(CustomersService), 'create').mockReturnValueOnce(
+      throwError(() => new Error('Could not save customer.')),
+    );
+    component.save();
+    await harness.fixture.whenStable();
+    harness.detectChanges();
+    expect(harness.routeNativeElement!.querySelector('[role="alert"]')!.textContent).toContain(
+      'Could not save customer.',
+    );
+    expect(TestBed.inject(Store).selectSignal(customersFeature.selectCustomers)()).toHaveLength(5);
+    expect(component.saving()).toBe(false);
+    component.save();
+    await harness.fixture.whenStable();
+    harness.detectChanges();
+    expect(TestBed.inject(Store).selectSignal(customersFeature.selectCustomers)()).toHaveLength(6);
     expect(harness.routeNativeElement!.querySelector('h1')!.textContent).toBe(
       'Customer Management',
     );

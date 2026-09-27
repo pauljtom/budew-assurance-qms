@@ -1,81 +1,48 @@
 import { createAction, createFeature, createReducer, on, props } from '@ngrx/store';
 import type { Customer } from '../models/models';
 
-export const initialCustomers: Customer[] = [
-  {
-    firstName: 'John',
-    lastName: 'Smith',
-    addresses: [
-      {
-        street: '2 Frigate Crescent',
-        city: 'Cape Town',
-        suburb: 'Fish Hoek',
-        postalCode: '7896',
-      },
-    ],
-  },
-  {
-    firstName: 'Sarah',
-    lastName: 'Jacobs',
-    addresses: [
-      {
-        street: '18 Oak Avenue',
-        city: 'Cape Town',
-        suburb: 'Claremont',
-        postalCode: '7708',
-      },
-    ],
-  },
-  {
-    firstName: 'Thabo',
-    lastName: 'Mokoena',
-    addresses: [
-      {
-        street: '45 Protea Street',
-        city: 'Johannesburg',
-        suburb: 'Rosebank',
-        postalCode: '2196',
-      },
-    ],
-  },
-  {
-    firstName: 'Priya',
-    lastName: 'Naidoo',
-    addresses: [
-      {
-        street: '7 Palm Road',
-        city: 'Durban',
-        suburb: 'Umhlanga',
-        postalCode: '4319',
-      },
-    ],
-  },
-  {
-    firstName: 'David',
-    lastName: 'Botha',
-    addresses: [
-      {
-        street: '32 Jacaranda Lane',
-        city: 'Pretoria',
-        suburb: 'Hatfield',
-        postalCode: '0083',
-      },
-    ],
-  },
-];
+export { initialCustomers } from '../data/customers';
 
+export const loadCustomers = createAction('[Customers] Load Customers');
+export const loadCustomersSuccess = createAction(
+  '[Customers] Load Success',
+  props<{ customers: Customer[] }>(),
+);
 export const addCustomer = createAction(
   '[Customers] Add Customer',
   props<{ customer: Customer }>(),
 );
+export const addCustomerSuccess = createAction(
+  '[Customers] Add Success',
+  props<{ customers: Customer[]; customer: Customer }>(),
+);
+export const deleteCustomer = createAction(
+  '[Customers] Delete Customer',
+  props<{ customer: Customer }>(),
+);
+export const deleteCustomerSuccess = createAction(
+  '[Customers] Delete Success',
+  props<{ customers: Customer[] }>(),
+);
+export const customersFailure = createAction('[Customers] Failure', props<{ error: string }>());
 
 export const customersFeature = createFeature({
   name: 'customers',
   reducer: createReducer(
-    { customers: initialCustomers },
-    on(addCustomer, (state, { customer }) => ({
+    { customers: [] as Customer[], loading: false, saving: false, error: null as string | null },
+    on(loadCustomers, (state) => ({ ...state, loading: true, error: null })),
+    on(addCustomer, deleteCustomer, (state) => ({ ...state, saving: true, error: null })),
+    on(loadCustomersSuccess, (state, { customers }) => ({ ...state, customers, loading: false })),
+    on(addCustomerSuccess, deleteCustomerSuccess, (state, { customers }) => ({
       ...state,
-      customers: [...state.customers, customer],
+      customers,
+      saving: false,
+    })),
+    on(customersFailure, (state, { error }) => ({
+      ...state,
+      loading: false,
+      saving: false,
+      error,
     })),
   ),
 });

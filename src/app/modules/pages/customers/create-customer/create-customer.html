@@ -41,9 +41,12 @@
         <mat-error>Enter a four-digit postal code.</mat-error>
       </mat-form-field>
     </div>
+    @if (error()) {
+      <p role="alert">{{ error() }}</p>
+    }
     <div class="actions">
       <a matButton routerLink="/customers">Cancel</a>
-      <button matButton="filled" type="submit">Create Customer</button>
+      <button matButton="filled" type="submit" [disabled]="saving()">Create Customer</button>
     </div>
   </form>
 </section>

@@ -6,12 +6,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { customersFeature } from '../../../../shared/store/customers.store';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ConfirmDeleteDialog } from '../../../../shared/components/confirm-delete-dialog/confirm-delete-dialog';
+import { deleteCustomer, customersFeature } from '../../../../shared/store/customers.store';
 import type { Address, Customer } from '../../../../shared/models/models';
 
 @Component({
   selector: 'app-customer-list',
   imports: [
+    MatDialogModule,
     MatTableModule,
     MatButtonModule,
     MatSortModule,
@@ -23,9 +26,22 @@ import type { Address, Customer } from '../../../../shared/models/models';
   styleUrl: './customer-list.css',
 })
 export class CustomerList {
-  public displayedColumns = ['firstName', 'lastName', 'street', 'city', 'suburb', 'postalCode'];
+  public displayedColumns = [
+    'firstName',
+    'lastName',
+    'street',
+    'city',
+    'suburb',
+    'postalCode',
+    'actions',
+  ];
   public dataSource = new MatTableDataSource<Customer>();
-  private customers = inject(Store).selectSignal(customersFeature.selectCustomers);
+  private store = inject(Store);
+  private dialog = inject(MatDialog);
+  readonly error = this.store.selectSignal(customersFeature.selectError);
+  readonly loading = this.store.selectSignal(customersFeature.selectLoading);
+  readonly saving = this.store.selectSignal(customersFeature.selectSaving);
+  private customers = this.store.selectSignal(customersFeature.selectCustomers);
 
   @ViewChild(MatSort)
   set sort(sort: MatSort) {
@@ -60,6 +76,17 @@ export class CustomerList {
     effect(() => {
       this.dataSource.data = this.customers();
     });
+  }
+
+  delete(customer: Customer) {
+    this.dialog
+      .open(ConfirmDeleteDialog, {
+        data: { kind: 'customer', name: `${customer.firstName} ${customer.lastName}` },
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (confirmed === true) this.store.dispatch(deleteCustomer({ customer }));
+      });
   }
 
   applyFilter(event: Event) {

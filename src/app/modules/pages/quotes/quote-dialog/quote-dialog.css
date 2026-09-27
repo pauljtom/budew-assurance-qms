@@ -1,0 +1,17 @@
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+dt {
+  font-weight: 500;
+  color: #616779;
+}
+dd {
+  margin: 0 0 1rem;
+  overflow-wrap: anywhere;
+}
+[role='alert'] {
+  color: #b3261e;
+}
