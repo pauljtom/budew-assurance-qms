@@ -1,1 +1,35 @@
-<router-outlet></router-outlet>
+<div class="app-shell">
+  <header class="topbar">
+    <a mat-icon-button routerLink="/" aria-label="Home" class="home-link">
+      <mat-icon>home</mat-icon>
+    </a>
+    <h1>Budew Assurance</h1>
+    <span class="app-description">Customer &amp; Quote Management</span>
+  </header>
+
+  <div class="workspace">
+    <nav class="sidebar" aria-label="Main navigation">
+      <a
+        mat-button
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ariaCurrentWhenActive="page"
+      >
+        <mat-icon>home</mat-icon>Home
+      </a>
+      <a mat-button routerLink="/customers" routerLinkActive="active" ariaCurrentWhenActive="page">
+        <mat-icon>people_outline</mat-icon>Customers
+      </a>
+      <a mat-button routerLink="/quotes" routerLinkActive="active" ariaCurrentWhenActive="page">
+        <mat-icon>description</mat-icon>Quotes
+      </a>
+    </nav>
+
+    <main class="main-view" id="main-content">
+      <div class="content-panel">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+</div>
