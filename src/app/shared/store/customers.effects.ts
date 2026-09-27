@@ -3,6 +3,8 @@ import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
 import { catchError, concatMap, map, of } from 'rxjs';
 import { CustomersService } from '../services/customers.service';
 import {
+  updateCustomer,
+  updateCustomerSuccess,
   addCustomer,
   addCustomerSuccess,
   customersFailure,
@@ -35,17 +37,21 @@ export class CustomersEffects implements OnInitEffects {
 
   mutate = createEffect(() =>
     this.actions.pipe(
-      ofType(addCustomer, deleteCustomer),
+      ofType(addCustomer, updateCustomer, deleteCustomer),
       concatMap((action) => {
         const request =
           action.type === addCustomer.type
             ? this.service.create(action.customer)
-            : this.service.delete(action.customer);
+            : action.type === updateCustomer.type
+              ? this.service.update(action.customer)
+              : this.service.delete(action.customer);
         return request.pipe(
           map((customers) =>
             action.type === addCustomer.type
               ? addCustomerSuccess({ customers, customer: action.customer })
-              : deleteCustomerSuccess({ customers }),
+              : action.type === updateCustomer.type
+                ? updateCustomerSuccess({ customers, customer: action.customer })
+                : deleteCustomerSuccess({ customers }),
           ),
           catchError((error: Error) => of(customersFailure({ error: error.message }))),
         );

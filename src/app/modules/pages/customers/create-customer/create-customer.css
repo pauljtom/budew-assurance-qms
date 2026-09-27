@@ -1,5 +1,11 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
 .customer-form {
-  max-width: 48rem;
+  width: 100%;
+  box-sizing: border-box;
   margin: 0 auto;
   padding: 1.5rem;
 }
@@ -22,5 +28,32 @@ p {
 @media (max-width: 600px) {
   .fields {
     grid-template-columns: 1fr;
+  }
+}
+
+mat-sidenav-container {
+  background: white;
+  height: min(650px, calc(95dvh - 250px));
+  min-height: 300px;
+  margin-bottom: 1rem;
+}
+mat-sidenav {
+  width: min(400px, 85vw);
+  background: #f6f7fb;
+  border-left: 1px solid #e2e5ed;
+}
+mat-sidenav-content {
+  padding: 1rem;
+}
+[role='alert'] {
+  color: #b3261e;
+}
+
+@media (max-width: 800px) {
+  .customer-form {
+    padding: 1rem;
+  }
+  mat-sidenav-content {
+    padding: 0.75rem;
   }
 }

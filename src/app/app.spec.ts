@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { QuoteStatus } from './shared/models/models';
 import { CustomersEffects } from './shared/store/customers.effects';
 import { TestBed } from '@angular/core/testing';
@@ -15,6 +17,8 @@ describe('App', () => {
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideRouter(routes),
         provideStore({ customers: customersFeature.reducer, quotes: quotesFeature.reducer }),
         provideEffects(CustomersEffects, QuotesEffects),

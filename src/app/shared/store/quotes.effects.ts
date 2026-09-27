@@ -1,6 +1,7 @@
+import { updateCustomerSuccess } from './customers.store';
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, concatMap, map, of } from 'rxjs';
+import { catchError, concatMap, map, of, tap } from 'rxjs';
 import { QuotesService } from '../services/quotes.service';
 import { quotesActions } from './quotes.store';
 
@@ -8,6 +9,15 @@ import { quotesActions } from './quotes.store';
 export class QuotesEffects {
   private actions = inject(Actions);
   private service = inject(QuotesService);
+
+  customerUpdated = createEffect(
+    () =>
+      this.actions.pipe(
+        ofType(updateCustomerSuccess),
+        tap(({ customer }) => this.service.updateCustomer(customer)),
+      ),
+    { dispatch: false },
+  );
 
   load = createEffect(() =>
     this.actions.pipe(

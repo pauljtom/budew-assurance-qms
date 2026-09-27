@@ -19,6 +19,17 @@ export class CustomersService {
     });
   }
 
+  update(customer: Customer) {
+    return defer(() => {
+      if (!this.customers.some((item) => item.customerID === customer.customerID))
+        throw new Error('This customer no longer exists.');
+      this.customers = this.customers.map((item) =>
+        item.customerID === customer.customerID ? customer : item,
+      );
+      return of([...this.customers]);
+    });
+  }
+
   delete(customer: Customer) {
     return defer(() => {
       if (!this.customers.some((item) => item.customerID === customer.customerID))

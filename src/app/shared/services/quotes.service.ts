@@ -38,6 +38,12 @@ export class QuotesService {
     });
   }
 
+  updateCustomer(customer: Quote['customer']) {
+    this.quotes = this.quotes.map((quote) =>
+      quote.customer.customerID === customer.customerID ? { ...quote, customer } : quote,
+    );
+  }
+
   delete(quoteID: string) {
     return defer(() => {
       this.quotes = this.quotes.filter((item) => item.quoteID !== quoteID);

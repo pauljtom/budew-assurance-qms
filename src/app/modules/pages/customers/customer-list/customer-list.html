@@ -1,7 +1,7 @@
 <div class="p-3">
   <div class="customer-heading">
     <h1>Customer Management</h1>
-    <a matButton="filled" routerLink="/customers/new">New Customer</a>
+    <button matButton="filled" (click)="edit()">New Customer</button>
   </div>
 
   <mat-form-field appearance="outline" class="customer-filter">
@@ -61,6 +61,13 @@
           <a mat-button routerLink="/quotes" [queryParams]="{ customerID: customer.customerID }"
             >View Quotes</a
           >
+          <button
+            mat-button
+            (click)="edit(customer)"
+            [attr.aria-label]="'Edit ' + customer.firstName + ' ' + customer.lastName"
+          >
+            Edit
+          </button>
           <button
             mat-button
             (click)="delete(customer)"

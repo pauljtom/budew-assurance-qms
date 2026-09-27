@@ -1,0 +1,49 @@
+.enrichment {
+  padding: 1.25rem;
+}
+h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+h3 {
+  margin: 1.25rem 0 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+p {
+  font-size: 0.85rem;
+  color: #616779;
+  margin-bottom: 0.75rem;
+}
+mat-form-field {
+  width: 100%;
+  margin-top: 0.75rem;
+}
+.predictions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.predictions button {
+  height: auto;
+  min-height: 44px;
+  text-align: left;
+}
+.predictions strong {
+  margin-left: 0.5rem;
+}
+.selected {
+  background: #e3efff;
+}
+.confirmed {
+  color: #1b6535;
+  font-weight: 500;
+}
+a {
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+[role='alert'] {
+  color: #b3261e;
+}

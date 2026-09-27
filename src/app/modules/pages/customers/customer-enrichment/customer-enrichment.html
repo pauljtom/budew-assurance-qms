@@ -1,0 +1,117 @@
+<section class="enrichment">
+  <h2>Customer enrichment</h2>
+  <p>Confirm a country and optionally select a university.</p>
+  <h3>Nationality predictions</h3>
+  @if (!surname().trim()) {
+    <p>Enter a surname to see predictions.</p>
+  }
+  @if (predictionsLoading()) {
+    <p role="status">Predicting nationality…</p>
+  }
+  @if (predictionError()) {
+    <p role="alert">{{ predictionError() }}</p>
+  }
+  <div class="predictions">
+    @for (prediction of resolvedPredictions(); track prediction.country_id) {
+      <button
+        mat-button
+        type="button"
+        [disabled]="!prediction.country"
+        [class.selected]="country()?.code === prediction.country_id"
+        [attr.aria-pressed]="country()?.code === prediction.country_id"
+        (click)="prediction.country && chooseCountry(prediction.country)"
+      >
+        <span
+          >{{ prediction.country?.flag }}
+          {{ prediction.country?.name ?? prediction.country_id }}</span
+        >
+        <strong>{{ prediction.probability | percent: '1.1-1' }}</strong>
+      </button>
+    }
+  </div>
+  @if (
+    surname().trim() && !predictionsLoading() && !predictionError() && predictions().length === 0
+  ) {
+    <p>No predictions yet. You can choose a country below.</p>
+  }
+  @if (countriesLoading()) {
+    <p role="status">Loading countries…</p>
+  }
+  @if (countryError()) {
+    <p role="alert">{{ countryError() }}</p>
+    <button mat-button type="button" (click)="retry()">Retry countries</button>
+  }
+  <mat-form-field appearance="outline">
+    <mat-label>Search all countries</mat-label>
+    <input
+      matInput
+      [formControl]="countrySearch"
+      [matAutocomplete]="countryOptions"
+      autocomplete="off"
+    />
+    <mat-autocomplete
+      #countryOptions="matAutocomplete"
+      [displayWith]="displayCountry"
+      (optionSelected)="chooseCountry($event.option.value)"
+    >
+      @for (country of filteredCountries(); track country.code) {
+        <mat-option [value]="country">{{ country.flag }} {{ country.name }}</mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+  @if (country(); as selected) {
+    <p class="confirmed">Confirmed: {{ selected.flag }} {{ selected.name }}</p>
+    <button mat-button type="button" (click)="clearCountry()">Clear country</button>
+  }
+  <h3>University</h3>
+  @if (!country()) {
+    <p>Confirm a country to search universities.</p>
+  }
+  <mat-form-field appearance="outline">
+    <mat-label>Search university name</mat-label>
+    <input
+      matInput
+      [formControl]="universitySearch"
+      [matAutocomplete]="universityOptions"
+      [readonly]="!country()"
+      autocomplete="off"
+    />
+    <mat-hint>Type at least two characters and select a result.</mat-hint>
+    <mat-autocomplete
+      #universityOptions="matAutocomplete"
+      [displayWith]="displayUniversity"
+      (optionSelected)="chooseUniversity($event.option.value)"
+    >
+      @for (university of universities(); track $index) {
+        <mat-option [value]="university">{{ university.name }}</mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+  @if (universitiesLoading()) {
+    <p role="status">Searching universities…</p>
+  }
+  @if (universityError()) {
+    <p role="alert">{{ universityError() }}</p>
+  }
+  @if (
+    country() &&
+    universityQuery.length >= 2 &&
+    !universitiesLoading() &&
+    !universityError() &&
+    universities().length === 0 &&
+    !university()
+  ) {
+    <p>No results yet. Try a different university name.</p>
+  }
+  @if (university(); as selected) {
+    <p class="confirmed">Selected: {{ selected.name }}</p>
+    @if (selected.website) {
+      <a [href]="selected.website" target="_blank" rel="noopener noreferrer">{{
+        selected.website
+      }}</a>
+    }
+    <button mat-button type="button" (click)="universityChange.emit(undefined)">
+      Clear university
+    </button>
+  }
+</section>

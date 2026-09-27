@@ -1,3 +1,6 @@
+import { CreateCustomer } from '../create-customer/create-customer';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideEffects } from '@ngrx/effects';
 import { CustomersEffects } from '../../../../shared/store/customers.effects';
 import { firstValueFrom } from 'rxjs';
@@ -18,6 +21,8 @@ describe('CustomerList', () => {
     await TestBed.configureTestingModule({
       imports: [CustomerList],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideStore({ customers: customersFeature.reducer }),
         provideEffects(CustomersEffects),
         provideRouter([]),
@@ -143,5 +148,59 @@ describe('CustomerList', () => {
     fixture.detectChanges();
     expect(component.dataSource.data).toHaveLength(4);
     expect(fixture.nativeElement.querySelector('table').textContent).not.toContain('John');
+  });
+  it('adds and edits through the same dialog and saves confirmed enrichment without duplicating customers', async () => {
+    fixture.detectChanges();
+    const dialog = TestBed.inject(MatDialog);
+    const original = component.dataSource.data[0];
+    component.edit(original);
+    await fixture.whenStable();
+    const ref = dialog.openDialogs[0];
+    const editor = ref.componentInstance as CreateCustomer;
+    expect(editor.form.controls.lastName.value).toBe('Smith');
+    expect(document.querySelector('mat-sidenav')).toBeTruthy();
+    editor.form.patchValue({ lastName: 'Jones' });
+    editor.nationality.set({ code: 'ZA', name: 'South Africa', flag: '🇿🇦' });
+    editor.university.set({ name: 'University of Cape Town', website: 'https://www.uct.ac.za/' });
+    const saved = firstValueFrom(ref.afterClosed());
+    editor.save();
+    await saved;
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.dataSource.data).toHaveLength(5);
+    const updated = component.dataSource.data[0];
+    expect(updated.customerID).toBe(original.customerID);
+    expect(updated.lastName).toBe('Jones');
+    expect(updated.nationality?.code).toBe('ZA');
+    expect(updated.university?.website).toBe('https://www.uct.ac.za/');
+    expect(fixture.nativeElement.querySelector('table').textContent).toContain('Jones');
+    component.edit(updated);
+    await fixture.whenStable();
+    const cancelled = firstValueFrom(dialog.openDialogs[0].afterClosed());
+    (dialog.openDialogs[0].componentInstance as CreateCustomer).form.patchValue({
+      lastName: 'Discarded',
+    });
+    dialog.openDialogs[0].close();
+    await cancelled;
+    fixture.detectChanges();
+    expect(component.dataSource.data[0].lastName).toBe('Jones');
+    component.edit();
+    await fixture.whenStable();
+    const createRef = dialog.openDialogs[0];
+    const create = createRef.componentInstance as CreateCustomer;
+    create.form.setValue({
+      firstName: 'Amy',
+      lastName: 'Williams',
+      street: '1 Main Road',
+      suburb: 'Central',
+      city: 'Cape Town',
+      postalCode: '7708',
+    });
+    const created = firstValueFrom(createRef.afterClosed());
+    create.save();
+    await created;
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.dataSource.data).toHaveLength(6);
   });
 });

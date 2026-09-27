@@ -1,3 +1,4 @@
+import { CreateCustomer } from '../create-customer/create-customer';
 import { Component, effect, inject, ViewChild } from '@angular/core';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -75,6 +76,15 @@ export class CustomerList {
     };
     effect(() => {
       this.dataSource.data = this.customers();
+    });
+  }
+
+  edit(customer?: Customer) {
+    this.dialog.open(CreateCustomer, {
+      data: { customer },
+      width: '1400px',
+      maxWidth: '96vw',
+      maxHeight: '95dvh',
     });
   }
 

@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { vi } from 'vitest';
 import { throwError } from 'rxjs';
 import { CustomersService } from '../../../../shared/services/customers.service';
@@ -16,6 +18,8 @@ describe('CreateCustomer', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideRouter(routes),
         provideStore({ customers: customersFeature.reducer }),
         provideEffects(CustomersEffects),

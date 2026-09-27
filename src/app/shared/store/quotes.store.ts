@@ -1,3 +1,4 @@
+import { updateCustomerSuccess } from './customers.store';
 import {
   createActionGroup,
   createFeature,
@@ -25,6 +26,12 @@ export const quotesFeature = createFeature({
   name: 'quotes',
   reducer: createReducer(
     { quotes: [] as Quote[], loading: false, saving: false, error: null as string | null },
+    on(updateCustomerSuccess, (state, { customer }) => ({
+      ...state,
+      quotes: state.quotes.map((quote) =>
+        quote.customer.customerID === customer.customerID ? { ...quote, customer } : quote,
+      ),
+    })),
     on(quotesActions.load, (state) => ({ ...state, loading: true, error: null })),
     on(quotesActions.create, quotesActions.update, quotesActions.delete, (state) => ({
       ...state,
