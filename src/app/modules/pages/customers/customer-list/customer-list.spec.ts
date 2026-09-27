@@ -1,22 +1,22 @@
 import { provideStore } from '@ngrx/store';
 import { provideRouter } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { addCustomer, customersFeature } from '../../../shared/store/customers.store';
+import { addCustomer, customersFeature } from '../../../../shared/store/customers.store';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CustomerManagementComponent } from './customer-management-component';
+import { CustomerList } from './customer-list';
 
-describe('CustomerManagementComponent', () => {
-  let component: CustomerManagementComponent;
-  let fixture: ComponentFixture<CustomerManagementComponent>;
+describe('CustomerList', () => {
+  let component: CustomerList;
+  let fixture: ComponentFixture<CustomerList>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CustomerManagementComponent],
+      imports: [CustomerList],
       providers: [provideStore({ customers: customersFeature.reducer }), provideRouter([])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CustomerManagementComponent);
+    fixture = TestBed.createComponent(CustomerList);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

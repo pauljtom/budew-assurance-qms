@@ -2,10 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { provideStore, Store } from '@ngrx/store';
-import { routes } from '../../../app.routes';
-import { customersFeature } from '../../../shared/store/customers.store';
+import { routes } from '../../../../app.routes';
+import { customersFeature } from '../../../../shared/store/customers.store';
 import { CreateCustomer } from './create-customer';
-import { CustomerManagementComponent } from '../customer-management-component/customer-management-component';
+import { CustomerList } from '../customer-list/customer-list';
 
 describe('CreateCustomer', () => {
   beforeEach(() => {
@@ -50,8 +50,8 @@ describe('CreateCustomer', () => {
     expect(harness.routeNativeElement!.querySelectorAll('tr[mat-row]')).toHaveLength(6);
     expect(harness.routeNativeElement!.textContent).toContain('Amy');
 
-    await harness.navigateByUrl('/', (await import('../home/home')).Home);
-    await harness.navigateByUrl('/customers', CustomerManagementComponent);
+    await harness.navigateByUrl('/', (await import('../../home/home')).Home);
+    await harness.navigateByUrl('/customers', CustomerList);
     expect(harness.routeNativeElement!.textContent).toContain('Amy');
   });
 

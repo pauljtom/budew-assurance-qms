@@ -38,7 +38,7 @@ describe('App', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(router.url).toBe('/quotes');
-    expect(element.querySelector('main app-quote-management-component')).toBeTruthy();
+    expect(element.querySelector('main app-quote-list')).toBeTruthy();
     expect(element.querySelector('header h1')?.textContent).toContain('Budew Assurance');
     await router.navigateByUrl('/customers/new');
     await fixture.whenStable();

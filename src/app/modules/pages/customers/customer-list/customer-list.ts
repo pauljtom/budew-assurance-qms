@@ -6,11 +6,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { customersFeature } from '../../../shared/store/customers.store';
-import type { Address, Customer } from '../../../shared/models/models';
+import { customersFeature } from '../../../../shared/store/customers.store';
+import type { Address, Customer } from '../../../../shared/models/models';
 
 @Component({
-  selector: 'app-customer-management-component',
+  selector: 'app-customer-list',
   imports: [
     MatTableModule,
     MatButtonModule,
@@ -19,10 +19,10 @@ import type { Address, Customer } from '../../../shared/models/models';
     MatInputModule,
     RouterLink,
   ],
-  templateUrl: './customer-management-component.html',
-  styleUrl: './customer-management-component.css',
+  templateUrl: './customer-list.html',
+  styleUrl: './customer-list.css',
 })
-export class CustomerManagementComponent {
+export class CustomerList {
   public displayedColumns = ['firstName', 'lastName', 'street', 'city', 'suburb', 'postalCode'];
   public dataSource = new MatTableDataSource<Customer>();
   private customers = inject(Store).selectSignal(customersFeature.selectCustomers);

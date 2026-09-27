@@ -8,20 +8,18 @@ export const routes: Routes = [
   {
     path: 'customers/new',
     loadComponent: () =>
-      import('./modules/pages/create-customer/create-customer').then((m) => m.CreateCustomer),
+      import('./modules/pages/customers/create-customer/create-customer').then(
+        (m) => m.CreateCustomer,
+      ),
   },
   {
     path: 'customers',
     loadComponent: () =>
-      import('./modules/pages/customer-management-component/customer-management-component').then(
-        (m) => m.CustomerManagementComponent,
-      ),
+      import('./modules/pages/customers/customer-list/customer-list').then((m) => m.CustomerList),
   },
   {
     path: 'quotes',
     loadComponent: () =>
-      import('./modules/pages/quote-management-component/quote-management-component').then(
-        (m) => m.QuoteManagementComponent,
-      ),
+      import('./modules/pages/quotes/quote-list/quote-list').then((m) => m.QuoteList),
   },
 ];

@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Store } from '@ngrx/store';
-import { addCustomer } from '../../../shared/store/customers.store';
+import { addCustomer } from '../../../../shared/store/customers.store';
 
 @Component({
   selector: 'app-create-customer',
