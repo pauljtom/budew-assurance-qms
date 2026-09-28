@@ -1,80 +1,42 @@
-# BudewAssuranceQms
+# Budew Assurance QMS
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.1.
+An Angular 21 frontend for managing customers and insurance quotes. It uses Angular Material for the interface and NgRx Store and Effects for application state.
 
-## Development server
-
-To start a local development server, run:
+## Run locally
 
 ```bash
-ng serve
+npm ci
+npm start
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Open `http://localhost:4200/`. The customer enrichment features require an internet connection. Customer and quote changes are held in memory and reset when the page is refreshed.
 
-## Customer enrichment
+## Features
 
-Customers can be added or edited in the same Material dialog. The enrichment
-sidenav predicts countries from a surname through Nationalize, lets the user
-confirm a prediction or search the countries.dev country list, and searches
-Hipolabs universities in the confirmed country. Only explicitly selected country
-and university values are saved. Customer and quote changes are in memory and
-reset when the browser is refreshed.
+- Customer table with filtering, sorting, add, edit, and delete actions.
+- Quote table with customer and status filters, sorting, view, add, edit, and delete actions. A customer's **View Quotes** link opens only their quotes.
+- Confirmation dialogs for deletion. When deleting a customer, you can choose whether to delete their quotes or retain them for reassignment.
+- Customer enrichment with debounced nationality predictions, a searchable country list, and university search in the selected country. Lookup failures are shown in the form and do not block saving the customer's core details.
 
-The Nationalize endpoint is `https://api.nationalize.io/?name=<surname>`; the
-collection's `/name=` path is corrected to the supported query parameter.
-Nationality requests wait 400 ms after surname changes, and university searches
-wait 350 ms and require at least two characters. New input cancels obsolete
-requests. Lookup errors do not prevent saving the customer's core fields.
+## Inspect NgRx state in Firefox
 
-`ng serve` uses `src/proxy.conf.json` to forward `/api/universities/search` to
-`http://universities.hipolabs.com/search`. Restart the dev server after changing
-proxy configuration. Production hosting needs an equivalent server-side proxy
-for `/api/universities/`; the Angular development proxy is not included in a
-static production build.
+Install the [Redux DevTools Firefox extension](https://addons.mozilla.org/en-US/firefox/addon/reduxdevtools/), start the app, and open Firefox Developer Tools with **F12**. Select the **Redux** tab and reload the page. Select an action to inspect its payload and the resulting `customers` or `quotes` state. Visiting the Quotes page dispatches its load action.
 
-## Code scaffolding
+NgRx Store DevTools is configured in `src/app/app.config.ts` to retain the latest 25 actions.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Customer enrichment APIs
+
+- Nationalize predicts countries from the surname after a 400 ms pause.
+- countries.dev supplies the country list, which is cached after loading.
+- Hipolabs searches universities after a 350 ms pause and at least two typed characters. The selected university's name and website are saved on the customer.
+
+The Angular development server uses `src/proxy.conf.json` to forward `/api/universities/search` to Hipolabs. Restart the server after changing the proxy configuration. The assessment's API collection is in [docs/api-documentation.html](docs/api-documentation.html).
+
+## Verify
 
 ```bash
-ng generate component component-name
+npm run build
+npm test -- --watch=false
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+The [AI usage disclosure](AI_USAGE.md) and [prompt record](PROMPTS.md) provide the additional information requested in the assessment.
