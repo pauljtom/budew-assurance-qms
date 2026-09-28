@@ -1,4 +1,4 @@
-import { updateCustomerSuccess } from './customers.store';
+import { deleteCustomerSuccess, updateCustomerSuccess } from './customers.store';
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, concatMap, map, of, tap } from 'rxjs';
@@ -15,6 +15,17 @@ export class QuotesEffects {
       this.actions.pipe(
         ofType(updateCustomerSuccess),
         tap(({ customer }) => this.service.updateCustomer(customer)),
+      ),
+    { dispatch: false },
+  );
+
+  customerDeleted = createEffect(
+    () =>
+      this.actions.pipe(
+        ofType(deleteCustomerSuccess),
+        tap(({ customerID, deleteRelatedQuotes }) => {
+          if (deleteRelatedQuotes) this.service.deleteForCustomer(customerID);
+        }),
       ),
     { dispatch: false },
   );

@@ -52,6 +52,7 @@ export class CustomerEnrichment {
   readonly countriesLoading = signal(false);
   readonly predictionsLoading = signal(false);
   readonly universitiesLoading = signal(false);
+  readonly universitySearchAttempted = signal(false);
   readonly countrySearch = new FormControl<string | Country>('', { nonNullable: true });
   readonly universitySearch = new FormControl<string | University>('', { nonNullable: true });
   private countryQuery = toSignal(this.countrySearch.valueChanges, { initialValue: '' });
@@ -87,7 +88,9 @@ export class CustomerEnrichment {
           this.countriesLoading.set(true);
           return this.api.countries.pipe(
             catchError(() => {
-              this.countryError.set('Countries could not be loaded. Try again.');
+              this.countryError.set(
+                'Could not retrieve the country list. Retry to choose a country, or save the customer without one.',
+              );
               return of([] as Country[]);
             }),
             finalize(() => this.countriesLoading.set(false)),
@@ -110,7 +113,7 @@ export class CustomerEnrichment {
               return this.api.predict(surname).pipe(
                 catchError(() => {
                   this.predictionError.set(
-                    'Predictions are unavailable. You can still choose a country manually.',
+                    'Could not retrieve nationality predictions. You can choose a country from the list if available, or save the customer without one.',
                   );
                   return of([] as NationalityPrediction[]);
                 }),
@@ -142,7 +145,7 @@ export class CustomerEnrichment {
               this.universitiesLoading.set(true);
               return this.api.universities(country, query).pipe(
                 catchError(() => {
-                  this.universityError.set('Universities could not be loaded. Try another search.');
+                  this.universityError.set('Could not retrieve universities. You can still save the customer without one.');
                   return of([] as University[]);
                 }),
                 finalize(() => this.universitiesLoading.set(false)),
@@ -165,6 +168,7 @@ export class CustomerEnrichment {
   }
 
   chooseCountry(country: Country) {
+    this.universitySearchAttempted.set(false);
     if (country.code !== this.country()?.code) {
       this.universityChange.emit(undefined);
       this.universitySearch.setValue('');
@@ -178,8 +182,13 @@ export class CustomerEnrichment {
   }
 
   clearCountry() {
+    this.universitySearchAttempted.set(false);
     this.countryChange.emit(undefined);
     this.universityChange.emit(undefined);
     this.universitySearch.setValue('');
+  }
+
+  onUniversitySearchFocus() {
+    if (!this.country()) this.universitySearchAttempted.set(true);
   }
 }

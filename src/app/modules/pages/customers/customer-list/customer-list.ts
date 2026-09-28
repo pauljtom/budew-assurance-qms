@@ -8,7 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { ConfirmDeleteDialog } from '../../../../shared/components/confirm-delete-dialog/confirm-delete-dialog';
+import {
+  ConfirmDeleteDialog,
+  type CustomerDeleteConfirmation,
+} from '../../../../shared/components/confirm-delete-dialog/confirm-delete-dialog';
 import { deleteCustomer, customersFeature } from '../../../../shared/store/customers.store';
 import type { Address, Customer } from '../../../../shared/models/models';
 
@@ -94,8 +97,12 @@ export class CustomerList {
         data: { kind: 'customer', name: `${customer.firstName} ${customer.lastName}` },
       })
       .afterClosed()
-      .subscribe((confirmed) => {
-        if (confirmed === true) this.store.dispatch(deleteCustomer({ customer }));
+      .subscribe((confirmation: CustomerDeleteConfirmation | false | undefined) => {
+        if (confirmation && confirmation.confirmed) {
+          this.store.dispatch(
+            deleteCustomer({ customer, deleteRelatedQuotes: confirmation.deleteRelatedQuotes }),
+          );
+        }
       });
   }
 

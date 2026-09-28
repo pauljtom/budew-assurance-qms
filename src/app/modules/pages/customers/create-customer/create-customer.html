@@ -73,7 +73,7 @@
       } @else {
         <a matButton routerLink="/customers">Cancel</a>
       }
-      <button matButton="filled" type="submit" [disabled]="saving()">
+      <button matButton="filled" type="submit" [disabled]="form.invalid || saving()">
         {{ original ? 'Save Changes' : 'Create Customer' }}
       </button>
     </div>

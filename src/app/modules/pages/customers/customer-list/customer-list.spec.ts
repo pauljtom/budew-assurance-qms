@@ -8,6 +8,8 @@ import { provideStore } from '@ngrx/store';
 import { provideRouter } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { addCustomer, customersFeature } from '../../../../shared/store/customers.store';
+import { quotesActions, quotesFeature } from '../../../../shared/store/quotes.store';
+import { QuotesEffects } from '../../../../shared/store/quotes.effects';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MatDialog } from '@angular/material/dialog';
@@ -23,8 +25,8 @@ describe('CustomerList', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideStore({ customers: customersFeature.reducer }),
-        provideEffects(CustomersEffects),
+        provideStore({ customers: customersFeature.reducer, quotes: quotesFeature.reducer }),
+        provideEffects(CustomersEffects, QuotesEffects),
         provideRouter([]),
       ],
     }).compileComponents();
@@ -134,6 +136,7 @@ describe('CustomerList', () => {
     await fixture.whenStable();
     expect(dialog.openDialogs).toHaveLength(1);
     expect(document.querySelector('mat-dialog-container')?.textContent).toContain('John Smith');
+    expect(document.querySelector('mat-checkbox')).toBeTruthy();
     const cancelled = firstValueFrom(dialog.openDialogs[0].afterClosed());
     dialog.openDialogs[0].close(false);
     await cancelled;
@@ -142,12 +145,50 @@ describe('CustomerList', () => {
     expect(component.dataSource.data).toHaveLength(5);
     component.delete(customer);
     const confirmed = firstValueFrom(dialog.openDialogs[0].afterClosed());
-    dialog.openDialogs[0].close(true);
+    dialog.openDialogs[0].close({ confirmed: true, deleteRelatedQuotes: false });
     await confirmed;
     await fixture.whenStable();
     fixture.detectChanges();
     expect(component.dataSource.data).toHaveLength(4);
     expect(fixture.nativeElement.querySelector('table').textContent).not.toContain('John');
+  });
+
+  it('deletes related quotes only when the optional checkbox is selected', async () => {
+    fixture.detectChanges();
+    const store = TestBed.inject(Store);
+    const dialog = TestBed.inject(MatDialog);
+    store.dispatch(quotesActions.load());
+    const quotes = () => store.selectSignal(quotesFeature.selectQuotes)();
+    const customers = component.dataSource.data;
+    const firstID = customers[0].customerID;
+    const secondID = customers[1].customerID;
+    expect(quotes().filter((quote) => quote.customer.customerID === firstID)).toHaveLength(2);
+
+    component.delete(customers[0]);
+    await fixture.whenStable();
+    expect(dialog.openDialogs[0].componentInstance.deleteRelatedQuotes).toBe(false);
+    let closed = firstValueFrom(dialog.openDialogs[0].afterClosed());
+    dialog.openDialogs[0].close({ confirmed: true, deleteRelatedQuotes: false });
+    await closed;
+    await fixture.whenStable();
+    expect(quotes().filter((quote) => quote.customer.customerID === firstID)).toHaveLength(2);
+
+    component.delete(customers[1]);
+    await fixture.whenStable();
+    const checkbox = document.querySelector<HTMLInputElement>(
+      'mat-dialog-container mat-checkbox input[type="checkbox"]',
+    )!;
+    checkbox.click();
+    expect(dialog.openDialogs[0].componentInstance.deleteRelatedQuotes).toBe(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    closed = firstValueFrom(dialog.openDialogs[0].afterClosed());
+    document.querySelector<HTMLButtonElement>('mat-dialog-actions button:last-child')!.click();
+    expect(await closed).toEqual({ confirmed: true, deleteRelatedQuotes: true });
+    await fixture.whenStable();
+    expect(quotes().some((quote) => quote.customer.customerID === secondID)).toBe(false);
+    store.dispatch(quotesActions.load());
+    expect(quotes().some((quote) => quote.customer.customerID === secondID)).toBe(false);
   });
   it('adds and edits through the same dialog and saves confirmed enrichment without duplicating customers', async () => {
     fixture.detectChanges();

@@ -94,6 +94,10 @@ export class QuoteList {
     this.store.dispatch(quotesActions.load());
   }
 
+  customerDeleted(customerID: string) {
+    return !this.customers().some((customer) => customer.customerID === customerID);
+  }
+
   filterCustomer(event: Event) {
     this.customerFilter = (event.target as HTMLInputElement).value.trim().toLowerCase();
     this.applyFilters();

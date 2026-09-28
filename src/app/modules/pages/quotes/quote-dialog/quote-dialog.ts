@@ -45,7 +45,12 @@ export class QuoteDialog {
   readonly saving = this.store.selectSignal(quotesFeature.selectSaving);
   readonly statuses = Object.values(QuoteStatus);
   readonly form = this.builder.group({
-    customer: [this.data.quote?.customer ?? (null as Customer | null), Validators.required],
+    customer: [
+      this.customers().find(
+        (customer) => customer.customerID === this.data.quote?.customer.customerID,
+      ) ?? (null as Customer | null),
+      Validators.required,
+    ],
     amount: [
       this.data.quote?.amount ?? (null as number | null),
       [Validators.required, Validators.min(0.01), Validators.pattern(/^\d+(\.\d{1,2})?$/)],
@@ -54,9 +59,11 @@ export class QuoteDialog {
   });
 
   get availableCustomers() {
-    const customers = this.customers();
-    const previous = this.data.quote?.customer;
-    return previous && !customers.includes(previous) ? [...customers, previous] : customers;
+    return this.customers();
+  }
+
+  customerDeleted(customerID: string) {
+    return !this.customers().some((customer) => customer.customerID === customerID);
   }
 
   constructor() {
@@ -74,9 +81,16 @@ export class QuoteDialog {
     }
     const { customer, amount, status } = this.form.getRawValue();
     if (!customer || amount == null || !status) return;
+    const activeCustomer = this.customers().find(
+      (item) => item.customerID === customer.customerID,
+    );
+    if (!activeCustomer) {
+      this.form.controls.customer.setErrors({ required: true });
+      return;
+    }
     const quote: Quote = {
       quoteID: this.data.quote?.quoteID ?? `Q-${crypto.randomUUID()}`,
-      customer,
+      customer: activeCustomer,
       amount,
       status,
       createdDate: this.data.quote?.createdDate ?? new Date(),

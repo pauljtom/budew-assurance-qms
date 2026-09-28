@@ -5,7 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { provideStore, Store } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
-import { customersFeature } from '../../../../shared/store/customers.store';
+import { customersFeature, deleteCustomer } from '../../../../shared/store/customers.store';
 import { quotesActions, quotesFeature } from '../../../../shared/store/quotes.store';
 import { QuotesEffects } from '../../../../shared/store/quotes.effects';
 import { QuoteStatus } from '../../../../shared/models/models';
@@ -81,6 +81,9 @@ describe('QuoteList', () => {
     component.open('create');
     await fixture.whenStable();
     let editor = dialog.openDialogs[0].componentInstance as QuoteDialog;
+    const submit = () =>
+      document.querySelector<HTMLButtonElement>('mat-dialog-container button[type="submit"]')!;
+    expect(submit().disabled).toBe(true);
     editor.save();
     expect(editor.form.invalid).toBe(true);
     expect(component.dataSource.data).toHaveLength(6);
@@ -92,6 +95,8 @@ describe('QuoteList', () => {
     editor.save();
     expect(component.dataSource.data).toHaveLength(6);
     editor.form.controls.amount.setValue(123.45);
+    fixture.detectChanges();
+    expect(submit().disabled).toBe(false);
     const created = firstValueFrom(dialog.openDialogs[0].afterClosed());
     editor.save();
     await created;
@@ -103,6 +108,7 @@ describe('QuoteList', () => {
     component.open('edit', quote);
     await fixture.whenStable();
     editor = dialog.openDialogs[0].componentInstance as QuoteDialog;
+    expect(submit().disabled).toBe(false);
     editor.form.patchValue({
       customer: editor.availableCustomers[2],
       amount: 987.65,
@@ -139,6 +145,39 @@ describe('QuoteList', () => {
     fixture.detectChanges();
     expect(component.dataSource.data).toHaveLength(5);
     expect(fixture.nativeElement.querySelector('table').textContent).not.toContain(quote.quoteID);
+  });
+
+  it('marks retained quotes from deleted customers and requires reassignment when editing', async () => {
+    const store = TestBed.inject(Store);
+    const quote = component.dataSource.data[0];
+    const customer = store
+      .selectSignal(customersFeature.selectCustomers)()
+      .find((item) => item.customerID === quote.customer.customerID)!;
+    store.dispatch(deleteCustomer({ customer, deleteRelatedQuotes: false }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.dataSource.data.find((item) => item.quoteID === quote.quoteID)).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('table').textContent).toContain('(deleted customer)');
+
+    component.open('edit', quote);
+    await fixture.whenStable();
+    const editor = dialog.openDialogs[0].componentInstance as QuoteDialog;
+    expect(editor.availableCustomers.some((item) => item.customerID === customer.customerID)).toBe(
+      false,
+    );
+    expect(editor.form.controls.customer.value).toBeNull();
+    expect(
+      document.querySelector<HTMLButtonElement>('mat-dialog-container button[type="submit"]')!
+        .disabled,
+    ).toBe(true);
+    editor.form.controls.customer.setValue(editor.availableCustomers[0]);
+    const saved = firstValueFrom(dialog.openDialogs[0].afterClosed());
+    editor.save();
+    await saved;
+    await fixture.whenStable();
+    expect(
+      component.dataSource.data.find((item) => item.quoteID === quote.quoteID)?.customer.customerID,
+    ).toBe(editor.availableCustomers[0].customerID);
   });
 
   it('reports a service error and can process a later update', async () => {

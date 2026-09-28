@@ -1,5 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { vi } from 'vitest';
 import { throwError } from 'rxjs';
 import { CustomersService } from '../../../../shared/services/customers.service';
@@ -72,6 +72,10 @@ describe('CreateCustomer', () => {
   it('rejects missing fields, whitespace names and invalid postal codes', async () => {
     const harness = await RouterTestingHarness.create();
     const component = await harness.navigateByUrl('/customers/new', CreateCustomer);
+    expect(
+      harness.routeNativeElement!.querySelector<HTMLButtonElement>('button[type="submit"]')!
+        .disabled,
+    ).toBe(true);
     component.save();
     expect(component.form.controls.firstName.touched).toBe(true);
     component.form.setValue({
@@ -86,6 +90,34 @@ describe('CreateCustomer', () => {
     expect(component.form.invalid).toBe(true);
     expect(TestBed.inject(Store).selectSignal(customersFeature.selectCustomers)()).toHaveLength(5);
     expect(harness.routeNativeElement!.querySelector('h1')!.textContent).toBe('New Customer');
+  });
+
+  it('allows saving core customer details when the optional country lookup fails', async () => {
+    const harness = await RouterTestingHarness.create();
+    const component = await harness.navigateByUrl('/customers/new', CreateCustomer);
+    TestBed.inject(HttpTestingController)
+      .expectOne((request) => request.url === 'https://countries.dev/countries')
+      .flush({}, { status: 503, statusText: 'Service Unavailable' });
+    component.form.setValue({
+      firstName: 'Amy',
+      lastName: 'Williams',
+      street: '12 Main Road',
+      suburb: 'Claremont',
+      city: 'Cape Town',
+      postalCode: '7708',
+    });
+    harness.detectChanges();
+
+    expect(harness.routeNativeElement!.querySelector('mat-error')?.textContent).toContain(
+      'Could not retrieve the country list',
+    );
+    const submit = harness.routeNativeElement!.querySelector<HTMLButtonElement>(
+      'button[type="submit"]',
+    )!;
+    expect(submit.disabled).toBe(false);
+    submit.click();
+    await harness.fixture.whenStable();
+    expect(TestBed.inject(Store).selectSignal(customersFeature.selectCustomers)()).toHaveLength(6);
   });
 
   it('cancels without adding a customer', async () => {

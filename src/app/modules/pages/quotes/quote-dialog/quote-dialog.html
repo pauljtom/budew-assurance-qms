@@ -8,7 +8,12 @@
         <dt>Quote ID</dt>
         <dd>{{ quote.quoteID }}</dd>
         <dt>Customer</dt>
-        <dd>{{ quote.customer.firstName }} {{ quote.customer.lastName }}</dd>
+        <dd>
+          {{ quote.customer.firstName }} {{ quote.customer.lastName }}
+          @if (customerDeleted(quote.customer.customerID)) {
+            (deleted customer)
+          }
+        </dd>
         <dt>Amount</dt>
         <dd>{{ quote.amount | currency: 'ZAR' : 'symbol' : '1.2-2' }}</dd>
         <dt>Status</dt>
@@ -47,7 +52,7 @@
               >
             }
           </mat-select>
-          <mat-error>Select a customer.</mat-error>
+          <mat-error>Select an active customer.</mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Amount (ZAR)</mat-label>
@@ -72,7 +77,9 @@
         <p role="alert">{{ error() }}</p>
       }
       @if (availableCustomers.length === 0) {
-        <p>Create a customer before creating a quote.</p>
+        <p>Create a customer before creating or updating a quote.</p>
+      } @else if (data.mode === 'edit' && !form.controls.customer.value) {
+        <p>This quote's customer was deleted. Select an active customer to reassign it.</p>
       }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
@@ -80,7 +87,7 @@
       <button
         matButton="filled"
         type="submit"
-        [disabled]="saving() || availableCustomers.length === 0"
+        [disabled]="form.invalid || saving() || availableCustomers.length === 0"
       >
         {{ data.mode === 'edit' ? 'Save Changes' : 'Create Quote' }}
       </button>

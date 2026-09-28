@@ -25,13 +25,17 @@ describe('CustomerEnrichment', () => {
     fixture = TestBed.createComponent(CustomerEnrichment);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  function loadCountries() {
     http.expectOne((request) => request.url === 'https://countries.dev/countries').flush(countries);
     fixture.detectChanges();
-  });
+  }
 
   afterEach(() => http.verify({ ignoreCancelled: true }));
 
   it('debounces surname predictions and cancels obsolete requests', async () => {
+    loadCountries();
     fixture.componentRef.setInput('surname', 'Smi');
     fixture.detectChanges();
     await pause(100);
@@ -69,6 +73,7 @@ describe('CustomerEnrichment', () => {
   });
 
   it('allows a searchable country override and searches universities only in the confirmed country', async () => {
+    loadCountries();
     component.countrySearch.setValue('united');
     fixture.detectChanges();
     expect(component.filteredCountries()).toHaveLength(2);
@@ -108,6 +113,7 @@ describe('CustomerEnrichment', () => {
   });
 
   it('keeps manual country selection available after a prediction failure', async () => {
+    loadCountries();
     fixture.componentRef.setInput('surname', 'Smith');
     fixture.detectChanges();
     await pause(430);
@@ -115,7 +121,43 @@ describe('CustomerEnrichment', () => {
       .expectOne((request) => request.url === 'https://api.nationalize.io/')
       .flush({}, { status: 429, statusText: 'Too Many Requests' });
     fixture.detectChanges();
-    expect(component.predictionError()).toContain('choose a country manually');
+    expect(component.predictionError()).toContain('save the customer without one');
+    expect(fixture.nativeElement.querySelector('mat-error')?.textContent).toContain(
+      'Could not retrieve nationality predictions',
+    );
     expect(component.filteredCountries()).toHaveLength(3);
+  });
+
+  it('shows an error and allows retry when the country API returns no countries', () => {
+    http.expectOne((request) => request.url === 'https://countries.dev/countries').flush([]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('mat-error')?.textContent).toContain(
+      'Could not retrieve the country list',
+    );
+    expect(component.filteredCountries()).toEqual([]);
+
+    component.retry();
+    loadCountries();
+    expect(component.countryError()).toBe('');
+    expect(component.filteredCountries()).toHaveLength(3);
+  });
+
+  it('highlights the country guidance after university search is attempted without a country', () => {
+    loadCountries();
+    const universityInput = fixture.nativeElement.querySelectorAll('input')[1] as HTMLInputElement;
+    const guidance = () => fixture.nativeElement.querySelector('p[aria-live="polite"]');
+    expect(guidance().classList.contains('country-required')).toBe(false);
+    universityInput.dispatchEvent(new Event('focus'));
+    fixture.detectChanges();
+    expect(guidance().classList.contains('country-required')).toBe(true);
+
+    component.chooseCountry(component.countries()[0]);
+    fixture.componentRef.setInput('country', component.countries()[0]);
+    fixture.detectChanges();
+    expect(guidance()).toBeNull();
+    component.clearCountry();
+    fixture.componentRef.setInput('country', undefined);
+    fixture.detectChanges();
+    expect(guidance().classList.contains('country-required')).toBe(false);
   });
 });

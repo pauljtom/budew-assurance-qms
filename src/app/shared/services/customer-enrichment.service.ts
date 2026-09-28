@@ -26,11 +26,20 @@ export class CustomerEnrichmentService {
       params: { fields: 'name,flag,flags,alpha2Code' },
     })
     .pipe(
-      map((countries) =>
-        countries
-          .map((country) => ({ code: country.alpha2Code, name: country.name, flag: country.flag }))
-          .sort((a, b) => a.name.localeCompare(b.name)),
-      ),
+      map((countries) => {
+        const options = Array.isArray(countries)
+          ? countries
+              .filter((country) => country.alpha2Code && country.name)
+              .map((country) => ({
+                code: country.alpha2Code,
+                name: country.name,
+                flag: country.flag,
+              }))
+              .sort((a, b) => a.name.localeCompare(b.name))
+          : [];
+        if (options.length === 0) throw new Error('The country list is empty.');
+        return options;
+      }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 

@@ -1,4 +1,4 @@
-import { updateCustomerSuccess } from './customers.store';
+import { deleteCustomerSuccess, updateCustomerSuccess } from './customers.store';
 import {
   createActionGroup,
   createFeature,
@@ -32,6 +32,14 @@ export const quotesFeature = createFeature({
         quote.customer.customerID === customer.customerID ? { ...quote, customer } : quote,
       ),
     })),
+    on(deleteCustomerSuccess, (state, { customerID, deleteRelatedQuotes }) =>
+      deleteRelatedQuotes
+        ? {
+            ...state,
+            quotes: state.quotes.filter((quote) => quote.customer.customerID !== customerID),
+          }
+        : state,
+    ),
     on(quotesActions.load, (state) => ({ ...state, loading: true, error: null })),
     on(quotesActions.create, quotesActions.update, quotesActions.delete, (state) => ({
       ...state,

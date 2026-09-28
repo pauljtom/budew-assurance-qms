@@ -27,11 +27,11 @@ export const updateCustomerSuccess = createAction(
 
 export const deleteCustomer = createAction(
   '[Customers] Delete Customer',
-  props<{ customer: Customer }>(),
+  props<{ customer: Customer; deleteRelatedQuotes: boolean }>(),
 );
 export const deleteCustomerSuccess = createAction(
   '[Customers] Delete Success',
-  props<{ customers: Customer[] }>(),
+  props<{ customers: Customer[]; customerID: string; deleteRelatedQuotes: boolean }>(),
 );
 export const customersFailure = createAction('[Customers] Failure', props<{ error: string }>());
 

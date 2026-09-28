@@ -44,6 +44,10 @@ export class QuotesService {
     );
   }
 
+  deleteForCustomer(customerID: string) {
+    this.quotes = this.quotes.filter((quote) => quote.customer.customerID !== customerID);
+  }
+
   delete(quoteID: string) {
     return defer(() => {
       this.quotes = this.quotes.filter((item) => item.quoteID !== quoteID);

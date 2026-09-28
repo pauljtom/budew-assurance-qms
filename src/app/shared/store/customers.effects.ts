@@ -51,7 +51,11 @@ export class CustomersEffects implements OnInitEffects {
               ? addCustomerSuccess({ customers, customer: action.customer })
               : action.type === updateCustomer.type
                 ? updateCustomerSuccess({ customers, customer: action.customer })
-                : deleteCustomerSuccess({ customers }),
+                : deleteCustomerSuccess({
+                    customers,
+                    customerID: action.customer.customerID,
+                    deleteRelatedQuotes: action.deleteRelatedQuotes,
+                  }),
           ),
           catchError((error: Error) => of(customersFailure({ error: error.message }))),
         );

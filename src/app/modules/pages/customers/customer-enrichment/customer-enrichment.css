@@ -1,5 +1,5 @@
 .enrichment {
-  padding: 1.25rem;
+  padding: 1.5rem;
 }
 h2 {
   font-size: 1.1rem;
@@ -16,6 +16,9 @@ p {
   color: #616779;
   margin-bottom: 0.75rem;
 }
+.country-required {
+  color: var(--mat-sys-error);
+}
 mat-form-field {
   width: 100%;
   margin-top: 0.75rem;
@@ -25,9 +28,14 @@ mat-form-field {
   flex-direction: column;
   gap: 0.25rem;
 }
+.predictions:not(:empty) {
+  margin-bottom: 1rem;
+}
 .predictions button {
+  width: 100%;
   height: auto;
   min-height: 44px;
+  justify-content: flex-start;
   text-align: left;
 }
 .predictions strong {
@@ -45,6 +53,9 @@ a {
   font-size: 0.85rem;
   overflow-wrap: anywhere;
 }
-[role='alert'] {
-  color: #b3261e;
+.lookup-error {
+  display: block;
+  margin: 0.5rem 0;
+  color: var(--mat-sys-error);
+  line-height: 1.4;
 }

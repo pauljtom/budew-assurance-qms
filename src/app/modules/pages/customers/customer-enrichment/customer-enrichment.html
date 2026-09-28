@@ -9,7 +9,7 @@
     <p role="status">Predicting nationality…</p>
   }
   @if (predictionError()) {
-    <p role="alert">{{ predictionError() }}</p>
+    <mat-error class="lookup-error" role="alert">{{ predictionError() }}</mat-error>
   }
   <div class="predictions">
     @for (prediction of resolvedPredictions(); track prediction.country_id) {
@@ -38,7 +38,7 @@
     <p role="status">Loading countries…</p>
   }
   @if (countryError()) {
-    <p role="alert">{{ countryError() }}</p>
+    <mat-error class="lookup-error" role="alert">{{ countryError() }}</mat-error>
     <button mat-button type="button" (click)="retry()">Retry countries</button>
   }
   <mat-form-field appearance="outline">
@@ -65,7 +65,9 @@
   }
   <h3>University</h3>
   @if (!country()) {
-    <p>Confirm a country to search universities.</p>
+    <p [class.country-required]="universitySearchAttempted()" aria-live="polite">
+      Confirm a country to search universities.
+    </p>
   }
   <mat-form-field appearance="outline">
     <mat-label>Search university name</mat-label>
@@ -74,6 +76,7 @@
       [formControl]="universitySearch"
       [matAutocomplete]="universityOptions"
       [readonly]="!country()"
+      (focus)="onUniversitySearchFocus()"
       autocomplete="off"
     />
     <mat-hint>Type at least two characters and select a result.</mat-hint>
@@ -91,7 +94,7 @@
     <p role="status">Searching universities…</p>
   }
   @if (universityError()) {
-    <p role="alert">{{ universityError() }}</p>
+    <mat-error class="lookup-error" role="alert">{{ universityError() }}</mat-error>
   }
   @if (
     country() &&
