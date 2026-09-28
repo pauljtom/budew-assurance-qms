@@ -7,6 +7,7 @@ import { provideEffects } from '@ngrx/effects';
 import { QuotesEffects } from './shared/store/quotes.effects';
 import { quotesFeature } from './shared/store/quotes.store';
 import { provideStore } from '@ngrx/store';
+import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { customersFeature } from './shared/store/customers.store';
 
 import { routes } from './app.routes';
@@ -20,6 +21,7 @@ export const appConfig: ApplicationConfig = {
       [customersFeature.name]: customersFeature.reducer,
       [quotesFeature.name]: quotesFeature.reducer,
     }),
+    provideStoreDevtools({ maxAge: 25 }),
     provideEffects(CustomersEffects, QuotesEffects),
   ],
 };
