@@ -11,7 +11,7 @@ export const initialQuotes: Quote[] = Object.values(QuoteStatus).map((status, in
   createdDate: new Date(2026, 8, 20 + index),
 }));
 
-/** In-memory repository for the assessment; replace with HTTP calls for a backend. */
+/** In-memory quote repository; replace with HTTP calls if a backend is added. */
 @Injectable({ providedIn: 'root' })
 export class QuotesService {
   private quotes = [...initialQuotes];

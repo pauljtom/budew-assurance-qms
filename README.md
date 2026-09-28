@@ -30,7 +30,7 @@ NgRx Store DevTools is configured in `src/app/app.config.ts` to retain the lates
 - countries.dev supplies the country list, which is cached after loading.
 - Hipolabs searches universities after a 350 ms pause and at least two typed characters. The selected university's name and website are saved on the customer.
 
-The Angular development server uses `src/proxy.conf.json` to forward `/api/universities/search` to Hipolabs. Restart the server after changing the proxy configuration. The assessment's API collection is in [docs/api-documentation.html](docs/api-documentation.html).
+The Angular development server uses `src/proxy.conf.json` to forward `/api/universities/search` to Hipolabs. Restart the server after changing the proxy configuration. The API collection is in [docs/api-documentation.html](docs/api-documentation.html).
 
 ## Verify
 
@@ -39,4 +39,4 @@ npm run build
 npm test -- --watch=false
 ```
 
-The [AI usage disclosure](AI_USAGE.md) and [prompt record](PROMPTS.md) provide the additional information requested in the assessment.
+The [AI usage disclosure](AI_USAGE.md) and [prompt record](PROMPTS.md) document how AI was used during development.
